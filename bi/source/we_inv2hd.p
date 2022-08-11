@@ -3,6 +3,8 @@ we_inv2hd.p Laser Formatted Invoice and Pickup Header Print
 Modified: 02/01/99 ecc fixed bill/ship-to zip display
 
 08/10/99   - Added Billback print option.
+08/09/2022 - clc Add barcode printing
+
 *******************************************************************************/
 {_global.def}
 {we_inv2w.def 50}
@@ -39,7 +41,6 @@ def var disp-clr-cnt as char format "X(15)" no-undo.
 def var disp-dry-cnt as char format "X(15)" no-undo.
 def var disp-tot-cnt as char format "X(15)" no-undo.
 def var orig-ord as char no-undo.
-
 
 def buffer CUSTOMER1 for CUSTOMER.
 
@@ -665,129 +666,139 @@ id = 1.
 do k = 0 to oset by 55.5:
   if copy-id[id] > "" then do:
   /* message "Item Loop:" id copy-id[1] copy-id[2]. pause. */
-  if copy-id[id] = "C" or copy-id[id] = "P" or copy-id[id] = "B" then do:
-      if last-cust-rid <> ? then
-          find first W_CUST where recid(W_CUST) = last-cust-rid no-error.
-      if not avail W_CUST then find first W_CUST no-error.
-  end.
-  else do:
-      if last-driver-rid <> ? then
-          find first W_DRIVER where recid(W_DRIVER)= last-driver-rid no-error.
-      if not avail W_DRIVER then find first W_DRIVER no-error.
-  end.
-
-  if copy-id[id] = "C" or copy-id[id] = "P" or copy-id[id] = "B" then
-     do i = 1 to 24:
-     /*message "Cust Row:" (i + k + 21.5). pause. */
-     put stream print control
-        cpi14 normal
-        "\033&a" string(i + k + 21.5) "R" "\033&a0.2C" W_CUST.W_TXT.
-        
-        find next W_CUST no-error.
-        last-cust-rid = recid(W_CUST).
-        if not avail W_CUST then do:
-           /* ecc adding invoice message */                            
-           /***
-           if inv-mess& = yes then do j = 1 to 5:                               
-              if trim(OE_CONTROL.INVOICE_MESS[j]) > "" and                      
-                 (i + k + 21.5 + j) <= (26 + k + 21.5) then do:                
-                    put stream print control cpi12 normal                                                "\033&a" string(i + k + j + 21.5) "R" "\033&a17C"  
-                    if substr(OE_CONTROL.INVOICE_MESS[j],1,2) = "/n" then " "                        else OE_CONTROL.INVOICE_MESS[j].                  
-              end. /* if trim(OE_CONTROL...) */                              
-           end. /* if inv-mess& = yes */     
-           ***/                                  
-           leave.                                                               
-        end. /* if not avail w_cust */                                       
-  end. /* copy-id = C */
-  if copy-id[id] = "D" then do i = 1 to 24:
-     /*message "Driver Row:" (i + k + 21.5) "Avail:" avail W_DRIVER. pause.*/
-     /*message "driver line" string(i + k + 21.5) w_driver.w_txt. pause. */
-     put stream print control
-        cpi14 normal
-        "\033&a" string(i + k + 21.5) "R" "\033&a0.2C" W_DRIVER.W_TXT.
-        find next W_DRIVER no-error.
-        last-driver-rid = recid(W_DRIVER).
-        if not avail W_DRIVER then do:
-        /* ecc adding invoice message */                              
-           /***
-           if inv-mess& = yes then do j = 1 to 5:                              
-              if trim(OE_CONTROL.INVOICE_MESS[j]) > "" and     
-                 (i + k + 21.5 + j) <= (26 + k + 21.5) then do:                                     put stream print control cpi12 normal                      
-                        "\033&a" string(i + k + j + 21.5) "R" "\033&a17C"     
-                    if substr(OE_CONTROL.INVOICE_MESS[j],1,2) = "/n" then " "
-                    else OE_CONTROL.INVOICE_MESS[j].                    
-              end. /* if trim(OE_CONTROL...) */                
-           end. /* if inv-mess& = yes */  
-           ***/                                    
-           leave.                                                               
-        end. /* if not avail w_driver */                                     
-  end. /* copy-id = D */
-
-  if avail ORDER then do:
-    t-charge = 0.
-    for each ORDER_CHARGE where ORDER_CHARGE.CO = C[1] and
-      ORDER_CHARGE.ORDER = ORDER.ORDER no-lock:
-      t-charge = t-charge + ORDER_CHARGE.AMOUNT.
-    end.
-  end.
-         
-
-  /* totals */
-
-   if (copy-id[id] = "D" and not avail W_DRIVER) or
-      (copy-id[id] = "C" and not avail W_CUST)  or
-      (copy-id[id] = "B" and not avail W_CUST)  
-      /**** No totals for Pickups, they aree not Credits
-      (copy-id[id] = "P" and not avail W_CUST) 
-      ****/
-      then do:
-     /**
-     if CUSTOMER.INV_PRICING = "N" 
-     then 
-     put stream print
-       cpi14 normal
-       "\033&a" string(50.5 + k) "R" "\033&a60C"
-       ""   format "              "     
-       ""   format "              "
-       ""   format "             "
-       bold
-       ""   format "           "
-       normal.
-     else
-     **/
-     if CUSTOMER.INV_PRICING <> "N" then
-     put stream print
-       cpi14 normal
-       "\033&a" string(50.5 + k) "R" "\033&a60C"
-       (totext[1] + t-charge + (if avail ORDER then ORDER.TTL_ADF else 0))                                            format " ZZZ,ZZZ.99-  "
-       if avail ORDER then ORDER.TTL_TAX else tax
-                                      format "ZZZ,ZZZ.99-   "
-       if avail ORDER then /*ORDER.TTL_ADF*/ 0 else 0
-                                      format "ZZZ,ZZZ.99-  "
-       bold
-       (totext[1] + t-charge +
-        (if avail ORDER then ORDER.TTL_TAX else tax) +
-        (if avail ORDER then ORDER.TTL_ADF else 0)) format "ZZZ,ZZZ.99-"
-       normal.
+   if copy-id[id] = "C" or copy-id[id] = "P" or copy-id[id] = "B" then do:
+         if last-cust-rid <> ? then
+            find first W_CUST where recid(W_CUST) = last-cust-rid no-error.
+         if not avail W_CUST then find first W_CUST no-error.
    end.
-   else if (copy-id[id] = "P" and not avail W_CUST) then do:
-     put stream print
-        cpi14 normal
-        "\033&a" string(50.5 + k) "R" "\033&a102C"
-        "---".
-   end.                       
    else do:
-    put stream print
-       cpi14 normal
-       "\033&a" string(50.5 + k) "R" "\033&a102C"
-       "CONTINUED".
+         if last-driver-rid <> ? then
+            find first W_DRIVER where recid(W_DRIVER)= last-driver-rid no-error.
+         if not avail W_DRIVER then find first W_DRIVER no-error.
+   end.
 
-  /***     "\033&a" string(52 + k) "R" "\033&a101C"
-       "ZZZ,ZZZ.99-"
-       "\033&a" string(54 + k) "R" "\033&a101C"
-       "ZZZ,ZZZ.99-".  ***/
+   if copy-id[id] = "C" or copy-id[id] = "P" or copy-id[id] = "B" then
+      do i = 1 to 24:
+      /*message "Cust Row:" (i + k + 21.5). pause. */
+      put stream print control
+         cpi14 normal
+         "\033&a" string(i + k + 21.5) "R" "\033&a0.2C" W_CUST.W_TXT.
+         
+         find next W_CUST no-error.
+         last-cust-rid = recid(W_CUST).
+         if not avail W_CUST then do:
+            /* ecc adding invoice message */                            
+            /***
+            if inv-mess& = yes then do j = 1 to 5:                               
+               if trim(OE_CONTROL.INVOICE_MESS[j]) > "" and                      
+                  (i + k + 21.5 + j) <= (26 + k + 21.5) then do:                
+                     put stream print control cpi12 normal                                                "\033&a" string(i + k + j + 21.5) "R" "\033&a17C"  
+                     if substr(OE_CONTROL.INVOICE_MESS[j],1,2) = "/n" then " "                        else OE_CONTROL.INVOICE_MESS[j].                  
+               end. /* if trim(OE_CONTROL...) */                              
+            end. /* if inv-mess& = yes */     
+            ***/                                  
+            leave.                                                               
+         end. /* if not avail w_cust */                                       
+   end. /* copy-id = C */
+   if copy-id[id] = "D" then do i = 1 to 24:
+      /*message "Driver Row:" (i + k + 21.5) "Avail:" avail W_DRIVER. pause.*/
+      /*message "driver line" string(i + k + 21.5) w_driver.w_txt. pause. */
+      put stream print control
+         cpi14 normal
+         "\033&a" string(i + k + 21.5) "R" "\033&a0.2C" W_DRIVER.W_TXT.
+         find next W_DRIVER no-error.
+         last-driver-rid = recid(W_DRIVER).
+         if not avail W_DRIVER then do:
+         /* ecc adding invoice message */                              
+            /***
+            if inv-mess& = yes then do j = 1 to 5:                              
+               if trim(OE_CONTROL.INVOICE_MESS[j]) > "" and     
+                  (i + k + 21.5 + j) <= (26 + k + 21.5) then do:                                     put stream print control cpi12 normal                      
+                           "\033&a" string(i + k + j + 21.5) "R" "\033&a17C"     
+                     if substr(OE_CONTROL.INVOICE_MESS[j],1,2) = "/n" then " "
+                     else OE_CONTROL.INVOICE_MESS[j].                    
+               end. /* if trim(OE_CONTROL...) */                
+            end. /* if inv-mess& = yes */  
+            ***/                                    
+            leave.                                                               
+         end. /* if not avail w_driver */                                     
+   end. /* copy-id = D */
+
+   if avail ORDER then do:
+      t-charge = 0.
+      for each ORDER_CHARGE where ORDER_CHARGE.CO = C[1] and
+         ORDER_CHARGE.ORDER = ORDER.ORDER no-lock:
+         t-charge = t-charge + ORDER_CHARGE.AMOUNT.
+      end.
    end.
-   end.
+            
+
+   /* totals */
+
+      if (copy-id[id] = "D" and not avail W_DRIVER) or
+         (copy-id[id] = "C" and not avail W_CUST)  or
+         (copy-id[id] = "B" and not avail W_CUST)  
+         /**** No totals for Pickups, they aree not Credits
+         (copy-id[id] = "P" and not avail W_CUST) 
+         ****/
+         then do:
+      /**
+      if CUSTOMER.INV_PRICING = "N" 
+      then 
+      put stream print
+         cpi14 normal
+         "\033&a" string(50.5 + k) "R" "\033&a60C"
+         ""   format "              "     
+         ""   format "              "
+         ""   format "             "
+         bold
+         ""   format "           "
+         normal.
+      else
+      **/
+      if CUSTOMER.INV_PRICING <> "N" then
+      put stream print
+         cpi14 normal
+         "\033&a" string(50.5 + k) "R" "\033&a60C"
+         (totext[1] + t-charge + (if avail ORDER then ORDER.TTL_ADF else 0))                                            format " ZZZ,ZZZ.99-  "
+         if avail ORDER then ORDER.TTL_TAX else tax
+                                       format "ZZZ,ZZZ.99-   "
+         if avail ORDER then /*ORDER.TTL_ADF*/ 0 else 0
+                                       format "ZZZ,ZZZ.99-  "
+         bold
+         (totext[1] + t-charge +
+         (if avail ORDER then ORDER.TTL_TAX else tax) +
+         (if avail ORDER then ORDER.TTL_ADF else 0)) format "ZZZ,ZZZ.99-"
+         normal.
+      end.
+      else if (copy-id[id] = "P" and not avail W_CUST) then do:
+      put stream print
+         cpi14 normal
+         "\033&a" string(50.5 + k) "R" "\033&a102C"
+         "---".
+      end.                       
+      else do:
+      put stream print
+         cpi14 normal
+         "\033&a" string(50.5 + k) "R" "\033&a102C"
+         "CONTINUED".
+
+   /***     "\033&a" string(52 + k) "R" "\033&a101C"
+         "ZZZ,ZZZ.99-"
+         "\033&a" string(54 + k) "R" "\033&a101C"
+         "ZZZ,ZZZ.99-".  ***/
+      end.
+
+      /* Print Barcode */
+          
+      run we_barcodeConvert.p (input "A", input ORDER.ORDER, output formattedBarcode).
+
+      put stream print control
+        "\033(12Yesc(s1p36v0s0b28685T"    /* Code128TT-Regular 1/2 inch */
+         "\033&a" string(50.5 + k) "R" "\033&a102C"
+         formattedBarcode.      
+      
+  end. /* copy-id[id] > "" */
    id = id + 1.
    if copy-id[id] = "" then leave.
 end.
