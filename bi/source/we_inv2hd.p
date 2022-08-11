@@ -41,6 +41,7 @@ def var disp-clr-cnt as char format "X(15)" no-undo.
 def var disp-dry-cnt as char format "X(15)" no-undo.
 def var disp-tot-cnt as char format "X(15)" no-undo.
 def var orig-ord as char no-undo.
+define variable formattedBarcode as character no-undo format 'x(40)'.
 
 def buffer CUSTOMER1 for CUSTOMER.
 
