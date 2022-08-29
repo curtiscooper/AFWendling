@@ -1,0 +1,29 @@
+/******************************************************************************
+hc_report.pi   General Report Template    Parameter file
+created 04/25/2018 by Howell & Associates Consulting, LLC
+******************************************************************************/
+
+form "      : "  skip
+     with frame PROMPTF row 7 centered no-label overlay. 
+
+do while true on endkey undo, leave MAIN:
+    hide frame PROMPTF.
+    hide message no-pause.
+    
+    update 
+           with frame PROMPTF editing:
+        {_edkey.i}
+        if last-field <> frame-field 
+        or last-index <> frame-index 
+        or go-pending 
+        then do:
+            if last-field = "" 
+            then do:
+
+            end. 
+            assign last-field = frame-field
+                   last-index = frame-index.
+        end.
+    end.
+    leave.
+end.
