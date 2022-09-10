@@ -8,6 +8,10 @@
                  LTGnnnnnnn - Order Guide Updates
                  where: nnnnnnn - a sevendigit number
            Note: Order and Confirm files must match.
+           
+           
+    8/28/2022 CLC   Changed outbound confirmation in Process-Order-Confirmations            
+    
 ***** */
 {we_session.def TRUE}
 {we_messages.def new}
@@ -945,6 +949,18 @@ define var item         as char no-undo.
                 trim(customer) + fill(" ",10 - length(trim(customer))) +
                     tt-Confirm-Order.MemoNum + type + order.
             put stream s-confirms unformatted confirm-line skip.
+            
+            assign 
+                confirm-line = 
+                    "Line " +
+                    "Item       " +
+                    "Unit " +
+                    "QtyO " +
+                    "QtyS " +
+                    "Sub  " +
+                    "Status ".
+            put stream s-confirms unformatted confirm-line skip.
+            
             if debug&
             then do:
                 run Set-Dbg-DTTM.
@@ -984,17 +1000,33 @@ define var item         as char no-undo.
                 run Set-Dbg-DTTM.
                 run Messages.
             end. /* if not available(ORDER_ITEM) */ 
+            
+            find ITEM
+                where ITEM.CO   = company
+                  and ITEM.ITEM = ORDER_ITEM.ITEM
+                no-lock no-error.
+                
             assign
                 cntline = cntline + 1
-                item    = tt-Confirm-Item.PSItem
+/*                item    = tt-Confirm-Item.PSItem*/
+                item    = ORDER_ITEM.ITEM
                 item    = item + fill(" ",10 - length(item))
                 confirm-line =
                 /* *****
                     xxxxxxxxxxqqqqeppppppppccccccccssssssssss   //Item line
                 ****** */
-                    item + string(tt-Confirm-Item.QtyShip,"9999") + "N" +
-                    tt-Confirm-Item.NetPrice + tt-Confirm-Item.Cost     +
-                    substr(tt-Confirm-Item.Msg,1,30).
+/*                    item + string(tt-Confirm-Item.QtyShip,"9999") + "N" +*/
+/*                    tt-Confirm-Item.NetPrice + tt-Confirm-Item.Cost     +*/
+/*                    substr(tt-Confirm-Item.Msg,1,30).                    */
+                                        
+                    string(ORDER_ITEM.LINE,"9999") + " " +
+                    item + " " +
+                    ORDER_ITEM.UNIT + " " +
+                    string(ORDER_ITEM.QTY_ORD,"9999") + " " +
+                    string(ORDER_ITEM.QTY_SHIP,"9999") + " " +
+                    string(ORDER_ITEM.SUB&,"9999") + " " +
+                    if available item then ITEM.STOCK_STATUS else "".
+                    
             put stream s-confirms unformatted confirm-line skip.
             if debug&
             then do:
