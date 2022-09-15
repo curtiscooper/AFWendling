@@ -1001,17 +1001,24 @@ define var item         as char no-undo.
                 run Messages.
             end. /* if not available(ORDER_ITEM) */ 
             
-            find ITEM
-                where ITEM.CO   = company
-                  and ITEM.ITEM = ORDER_ITEM.ITEM
+/*
+            find first ITEM
+                where 
+/*                ITEM.CO   = company and  */
+                  ITEM.ITEM = ORDER_ITEM.ITEM
                 no-lock no-error.
-                
+*/                
             assign
                 cntline = cntline + 1
 /*                item    = tt-Confirm-Item.PSItem*/
+
+/*
                 item    = ORDER_ITEM.ITEM
                 item    = item + fill(" ",10 - length(item))
-                confirm-line =
+*/
+
+                confirm-line = 
+                " TESTING LINE ------------------- ".
                 /* *****
                     xxxxxxxxxxqqqqeppppppppccccccccssssssssss   //Item line
                 ****** */
@@ -1019,13 +1026,16 @@ define var item         as char no-undo.
 /*                    tt-Confirm-Item.NetPrice + tt-Confirm-Item.Cost     +*/
 /*                    substr(tt-Confirm-Item.Msg,1,30).                    */
                                         
+/*
                     string(ORDER_ITEM.LINE,"9999") + " " +
                     item + " " +
                     ORDER_ITEM.UNIT + " " +
-                    string(ORDER_ITEM.QTY_ORD,"9999") + " " +
-                    string(ORDER_ITEM.QTY_SHIP,"9999") + " " +
-                    string(ORDER_ITEM.SUB&,"9999") + " " +
-                    if available item then ITEM.STOCK_STATUS else "".
+                    string(ORDER_ITEM.QTY_ORD,"-9999") + " " +
+                    string(ORDER_ITEM.QTY_SHIP,"-9999") + " " +
+                    string(ORDER_ITEM.SUB&) + " " +
+                    if available item then ITEM.STOCK_STATUS else "N/A".
+*/
+
                     
             put stream s-confirms unformatted confirm-line skip.
             if debug&
