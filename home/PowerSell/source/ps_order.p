@@ -901,7 +901,15 @@ define var customer     as char no-undo format "x(10)".
 define var order        as char no-undo format "x(10)".
 define var type         as char no-undo format "x".
 define var confirm-line as char no-undo format "x(60)".
-define var item         as char no-undo.
+define var cItem        as char no-undo.
+define variable cLine   as character no-undo.
+define variable cUnit   as character no-undo.
+define variable cQtyOrd as character no-undo.
+define variable cQtyShip     as character no-undo.
+define variable cSub         as character no-undo.
+define variable cStockStatus as character no-undo.
+
+
     {we_dbgproc.i Process-Order-Confirmations "Begins"}
     Process-Confirm-Files: for each tt-FTP-Files use-index Seed /* FTPFiles */
         where tt-FTP-Files.Type = "LTO",
@@ -976,8 +984,8 @@ define var item         as char no-undo.
         Process-Confirm-Items: for each tt-Confirm-Item use-index Seed
             where tt-Confirm-Item.Seed begins tt-Confirm-Order.Seed:
             find ORDER_ITEM
-                where ORDER_ITEM.CO    = ORDER.CO
-                  and ORDER_ITEM.ORDER = ORDER.ORDER
+                where ORDER_ITEM.CO    = tt-Confirm-Order.Company /* ORDER.CO */
+                  and ORDER_ITEM.ORDER = tt-Confirm-Item.Order /* ORDER.ORDER */
                   and ORDER_ITEM.ITEM  = tt-Confirm-Item.ITEM
                   and ORDER_ITEM.UNIT  = tt-Confirm-Item.Unit
                 no-error.
@@ -1000,44 +1008,45 @@ define var item         as char no-undo.
                 run Set-Dbg-DTTM.
                 run Messages.
             end. /* if not available(ORDER_ITEM) */ 
-            
-/*
-            find first ITEM
-                where 
-/*                ITEM.CO   = company and  */
-                  ITEM.ITEM = ORDER_ITEM.ITEM
-                no-lock no-error.
-*/                
-            assign
-                cntline = cntline + 1
-/*                item    = tt-Confirm-Item.PSItem*/
 
-/*
-                item    = ORDER_ITEM.ITEM
-                item    = item + fill(" ",10 - length(item))
-*/
-
-                confirm-line = 
-                " TESTING LINE ------------------- ".
-                /* *****
-                    xxxxxxxxxxqqqqeppppppppccccccccssssssssss   //Item line
-                ****** */
-/*                    item + string(tt-Confirm-Item.QtyShip,"9999") + "N" +*/
-/*                    tt-Confirm-Item.NetPrice + tt-Confirm-Item.Cost     +*/
-/*                    substr(tt-Confirm-Item.Msg,1,30).                    */
-                                        
-/*
-                    string(ORDER_ITEM.LINE,"9999") + " " +
-                    item + " " +
-                    ORDER_ITEM.UNIT + " " +
-                    string(ORDER_ITEM.QTY_ORD,"-9999") + " " +
-                    string(ORDER_ITEM.QTY_SHIP,"-9999") + " " +
-                    string(ORDER_ITEM.SUB&) + " " +
-                    if available item then ITEM.STOCK_STATUS else "N/A".
-*/
-
+            else if available(ORDER_ITEM) 
+            then do:            
+                find first ITEM where 
+                    ITEM.CO   = ORDER_ITEM.CO and
+                    ITEM.ITEM = ORDER_ITEM.ITEM
+                    no-lock no-error.
+                
+                assign
+                    cntline = cntline + 1
+    /*                item    = tt-Confirm-Item.PSItem*/
+                    cItem    = ORDER_ITEM.ITEM
+                    cItem    = cItem + fill(" ",10 - length(cItem)).
+    
+    
+    /*            assign            */
+    /*                confirm-line =*/
+                    /* *****
+                        xxxxxxxxxxqqqqeppppppppccccccccssssssssss   //Item line
+                    ****** */
+    /*                    item + string(tt-Confirm-Item.QtyShip,"9999") + "N" +*/
+    /*                    tt-Confirm-Item.NetPrice + tt-Confirm-Item.Cost     +*/
+    /*                    substr(tt-Confirm-Item.Msg,1,30).                    */
+                assign
+                    cLine = string(ORDER_ITEM.LINE,"9999")
+                    cUnit = ORDER_ITEM.UNIT
+                    cQtyOrd = string(ORDER_ITEM.QTY_ORD,"-9999")
+                    cQtyShip = string(ORDER_ITEM.QTY_SHIP,"-9999")
+                    cSub     = string(ORDER_ITEM.SUB&)
+                    cStockStatus = if available item then ITEM.STOCK_STATUS else "N/A" no-error.                                 
                     
-            put stream s-confirms unformatted confirm-line skip.
+                    
+                assign
+                    confirm-line = 
+                        substitute("&1 &2 &3 &4 &5 &6 &7",cLine,cItem,cUnit,cQtyOrd,cQtyShip,cSub,cStockStatus).
+                        
+                put stream s-confirms unformatted confirm-line skip.
+            end. /* Avail ORDER_ITEM */
+                        
             if debug&
             then do:
                 run Set-Dbg-DTTM.
