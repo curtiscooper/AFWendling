@@ -5,6 +5,8 @@ to do: complete field level validations in header, add
 
 DOCK_SCHED and CARRIER to be phased out
 12/02/98 Added AP_CONTROL.AP_VENDOR&
+10/26/22 CLC Added DELETE Confirmation
+
 *******************************************************************************/
 {_global.def}
 {_but.def}
@@ -956,7 +958,10 @@ procedure vendor-change.
 end procedure.
 
 procedure delete.
-   def var h-po as cha no-undo.
+  define variable h-po as character  no-undo.
+  define variable cInput as character format "X(20)" no-undo.
+   
+   
    h-po = t_po.po.
    
    {_find.i RCV first-co-po t_po.co,t_po.po}
@@ -977,27 +982,44 @@ procedure delete.
    message "Delete PO" t_po.po + "?"
             view-as alert-box buttons yes-no update choice& as log.
    /***/
-   if choice& then do /* transaction*/ :
-      /* > 35 lines causes error (40) abort in 1 transaction */
-        hide message no-pause.
-        if t_PO.TTL_LN > 30 then do:
-          gb-flag = "delete-all," + t_po.po.  /* flag d_poitem no decrement */
-          {_find.i PO_ITEM first-co-po t_po.co,t_po.po lock}
-          do while avail t_po_item transaction:
-           /*   message "Deleting Line" t_PO_ITEM.LINE. */
-              {_delete.i PO_ITEM}  
-              {_find.i PO_ITEM first-co-po t_po.co,t_po.po lock}
-          end.
-          gb-flag = "".
-        end.
-        do transaction:
-          {_delete.i PO}
-        end.
-        if return-value = "yes,delete" then do:
-          message "PO" h-po "Deleted".
-          done& = yes.
-       end.
-   end.
+   if choice& = yes then do:
+    hide message no-pause.
+    
+    form "Type DELETE:" cInput skip
+         "   "                 skip
+         "ENTER to Continue F4 to CANCEL" skip
+         with frame userAlert row 12 centered.
+
+    update cInput no-labels with frame userAlert overlay row 12 centered.
+    
+    hide frame userAlert.
+    
+    if keyfunc(lastkey) = "F4" then
+       cInput = "".
+    
+    if cInput = "DELETE" then
+      do /* transaction*/ :
+         /* > 35 lines causes error (40) abort in 1 transaction */
+           
+           if t_PO.TTL_LN > 30 then do:
+             gb-flag = "delete-all," + t_po.po.  /* flag d_poitem no decrement */
+             {_find.i PO_ITEM first-co-po t_po.co,t_po.po lock}
+             do while avail t_po_item transaction:
+              /*   message "Deleting Line" t_PO_ITEM.LINE. */
+                 {_delete.i PO_ITEM}  
+                 {_find.i PO_ITEM first-co-po t_po.co,t_po.po lock}
+             end.
+             gb-flag = "".
+           end.
+           do transaction:
+             {_delete.i PO}
+           end.
+           if return-value = "yes,delete" then do:
+              message "PO" h-po "Deleted".
+             done& = yes.
+           end.
+       end. /* Transaction */
+   end. /* choice& = yes */
 end.
 
 procedure gen.
