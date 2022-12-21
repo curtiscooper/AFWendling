@@ -1,0 +1,50 @@
+(10U(s1p13v0s0b4148T                               A.F. Wendling Route Truck Reefer Log
+ 
+(10U(s1p10v0s0b4148TDate:__10/25/20__  Route#:__100     __  Trailer#:__1546    __  Truck#: __SPAR    ____
+ 
+ 
+Driver:__KDM     ____________________        
+ 
+ 
+Time:___________________ (Start of shift first temp check)
+ 
+                                                                    #1
+REEFER SET POINT:___________FRZ                                                         ACTUAL TEMP:___________FRZ
+ 
+ 
+                 ___________CLR                                                                     ___________CLR
+ 
+ 
+Time:___________________ (3 hours after first temp check)
+ 
+                                                                    #2
+REEFER SET POINT:___________FRZ                                                         ACTUAL TEMP:___________FRZ
+ 
+ 
+                 ___________CLR                                                                     ___________CLR
+ 
+ 
+Time:___________________ (3 hours after second temp check)
+ 
+                                                                    #3
+REEFER SET POINT:___________FRZ                                                         ACTUAL TEMP:___________FRZ
+ 
+ 
+                 ___________CLR                                                                     ___________CLR
+ 
+ 
+Time:___________________ (3 hours after third temp check)
+ 
+                                                                    #4
+REEFER SET POINT:___________FRZ                                                         ACTUAL TEMP:___________FRZ
+ 
+ 
+                 ___________CLR                                                                     ___________CLR
+ 
+ 
+ 
+ 
+ 
+ATTENTION Driver Reefer Temp Logs are a daily requirement
+Please drop all completed Reefer Logs in mailbox outside of Saftey Office
+Report any issues immediately to supervisor

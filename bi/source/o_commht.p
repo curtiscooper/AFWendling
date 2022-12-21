@@ -15,6 +15,7 @@ change to orders where commission not paid yet).
 05/27/96 Added COMBINE_CUST& option
 01/18/97 Added COMM_TABLE, COMM_METHOD override by salesrep
 12/24/98 Added COMM_TABLE file to override SLS_CONTROL
+11/13/22 Remove commission amount if Flyer Special and Net is negative
 *******************************************************************************/
 {_global.def}
 def var margin% as deci no-undo.
@@ -48,6 +49,8 @@ def var sales-margin& as log no-undo.
 def var cost-type as cha no-undo.
 def var subtract-k12& as logi init no no-undo.
 def var subtract-FreightLine& as logi init no no-undo.
+def var subtract-NegativeFlyerSpecial& as logi init yes no-undo.
+
 def buffer ORDER1 for ORDER.
 def buffer CUST_STOP1 for CUST_STOP.
 
@@ -183,6 +186,13 @@ not trim(gb-coname) begins "DDC" then do:  /* Credit */
                         i-cc = i-cc - ORDER_ITEM.SLS_COST * qty.
              end.
          end.
+
+         if subtract-NegativeFlyerSpecial& then
+           run subtractNegativeFlyerSpecial(input ORDER.ORDER). 
+
+
+
+         
    end.
    if subtract-k12& then do:
         for each ORDER_ALLOCATION where ORDER_ALLOCATION.CO = C[1] and
@@ -248,7 +258,10 @@ not trim(gb-coname) begins "DDC" then do:  /* Credit */
                         i-cc = i-cc - ORDER_ITEM.SLS_COST * qty.
              end.
          end.
-         
+        
+        if subtract-NegativeFlyerSpecial& then 
+           run subtractNegativeFlyerSpecial(input ORDER1.ORDER). 
+                 
         if subtract-k12& then do:
             for each ORDER_ALLOCATION where ORDER_ALLOCATION.CO = C[1] and
                      ORDER_ALLOCATION.ORDER = ORDER1.ORDER no-lock:
@@ -328,6 +341,9 @@ else do:
                     i-cc = i-cc - ORDER_ITEM.SLS_COST * qty.
          end.
      end.
+
+    if subtract-NegativeFlyerSpecial& then
+      run subtractNegativeFlyerSpecial(input ORDER.ORDER). 
          
     if subtract-k12& then do:
         for each ORDER_ALLOCATION where ORDER_ALLOCATION.CO = C[1] and
@@ -433,7 +449,10 @@ do i = 1 to num-entries(del-str):
                         i-cc = i-cc - ORDER_ITEM.SLS_COST * qty.
              end.
          end.
-         
+
+        if subtract-NegativeFlyerSpecial& then         
+          run subtractNegativeFlyerSpecial(input ORDER1.ORDER).         
+        
         if subtract-k12& then do:
             for each ORDER_ALLOCATION where ORDER_ALLOCATION.CO = C[1] and
                      ORDER_ALLOCATION.ORDER = ORDER1.ORDER no-lock:
@@ -501,7 +520,7 @@ if ((trim(gb-coname) begins "Campus")) and
 end.  /* Campus Custom */
                            
 else do:
-  if avail CUSTOMEr and CUSTOMER.COMM_OVERRIDE& = yes then do:
+  if avail CUSTOMER and CUSTOMER.COMM_OVERRIDE& = yes then do:
       assign comm% = CUSTOMER.COMM_RATE
              sales-margin& = if CUSTOMER.COMM_FIXED_TYPE = "S" then yes else no.
   end.
@@ -593,3 +612,35 @@ else ORDER.TTL_COMMISSION = comm.
 if trim(gb-coname) begins "Jacmar" or trim(gb-coname) begins "DDC" then
    ORDER.COMM_RATE = comm% * 100. /* to calc commission on subsequent credit */
 
+
+
+
+procedure SubtractNegativeFlyerSpecial:   
+  define input parameter orderNum as character.
+
+
+  /* Remove Order_Item that results in a negative margin if Flyer Pricing FP */
+  
+  
+           
+  define variable itemMargin as decimal no-undo.
+  
+  for each ORDER_ITEM where ORDER_ITEM.CO = C[1] and          
+           ORDER_ITEM.ORDER = orderNum and
+           ORDER_ITEM.PRICING BEGINS "FP" no-lock:
+    
+    assign itemMargin = ORDER_ITEM.PRICE - ORDER_ITEM.SLS_COST.
+             
+    if itemMargin < 0 then               
+      assign i-ext = i-ext - ORDER_ITEM.EXTEND   /* So, back out line extend from total and not pay commission on the discounted amount?  */
+             qty = if ORDER_ITEM.PRICE_WT& then ORDER_ITEm.WT_SHIP
+                  else ORDER_ITEM.QTY_SHIP
+             i-lc = i-lc - (ORDER_ITEM.LOT_COST + 
+                            ORDER_ITEM.FREIGHT) * qty
+             i-ic = i-ic - ORDER_ITEM.INV_COST * qty
+             i-oc = i-oc - ORDER_ITEM.OFF_COST * qty
+             i-sc = i-sc - ORDER_ITEM.SLS_COST * qty
+             i-cc = i-cc - ORDER_ITEM.SLS_COST * qty.
+  end.
+
+end procedure. 

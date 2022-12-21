@@ -1,0 +1,83 @@
+(10U(s1p13v0s0b4148T                                  Driver Vehicle Inspection Report
+ 
+(10U(s1p12v0s0b4148TPress Hard When Writing
+(10U(s1p10v0s0b4148T___DRIVER POST TRIP_______________________________________________________________________
+| Carrier                  Location         Driver                Date / Time In         |
+|------------------------|-----------------|---------------------|-----------------------|
+|                        |                 | KDM                 | 10/25/20             |
+|________________________|_________________|_____________________|_______________________|
+| Truck / Tractor No        Mileage In        Trailer(s) No(s)    Mileage In             |
+|------------------------|-----------------|-------------------|-------------------------|
+|       SPAR           |                 |     1546        |                          |
+|________________________|_________________|___________________|_________________________|
+| Check any defective item and provide details under 'Post Trip Remarks'                 |
+| 1 FRONT/ENGINE         2 COUPLING         3 TRAILER/BOX SIDE(S)   5 IN CAB CHECK       |
+|   COMPARTMENT                                                                          |
+| ___Windsheild fluid    ___Fifth wheel     ___ABS Light            ___Horn              |
+|    reservoir           ___King pin        ___Marker lights/       ___Defroster/        |
+| ___Engine coolant      ___Air/Electrical     Reflective tape         Heater/AC         |
+|    reservoir              lines/Gladhands ___Tires, Wheels        ___Steering          |
+| ___Obvious fluid leaks ___Marker lights      Mudflaps             ___Parking brake     |
+| ___Belt/Hoses          ___Tractor tires                           ___Service brakes    |
+| ___Steer tires, wheels    Wheels          4 TRAILER/BOX REAR         /ABS light        |
+|    Lugs and signs of   ___Mudflaps        ___Reflective tape         (ST Only)         |
+|    oil leakage            Reflective tape ___Doors work and       ___Emergency         |
+| ___Headlights                                latch properly          equipment         |
+| ___Turn signals                           ___Liftgate operational ___Windsheild wipers |
+| ___Marker lights                          ___Lights               ___Mirrors           |
+|________________________________________________________________________________________|
+| Driver Post Trip Remarks ___Truck-No Defects   ___Trailer-No Defects                   |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|________________________________________________________________________________________|
+| Driver     |                                         | Driver's                        |
+| Signature  |                                         | Phone Number                    |
+|____________|_________________________________________|_________________________________|
+ 
+____SHOP__________________________________________________________________________________
+| ___Above Defects Corrected              ___Above Defects do not need to be corrected   |
+|                                            for safe vehicle operation                  |
+| Carrier/Agent - Remarks/Actions Taken                                                  |
+|________________________________________________________________________________________|
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|________________________________________________________________________________________|
+| Carrier/Agent- Print Name  |                                    |                      |
+|____________________________|____________________________________| Date                 |
+| Carrier/Agent- Signature   |                                    |      10/25/20      |
+|____________________________|____________________________________|______________________|
+ 
+|____PRETRIP/CSA_________________________________________________________________________|
+| Date/Time Out           Truck No          Mileage Out            Trailer(s) No(s)      |
+|------------------------|-----------------|---------------------|-----------------------|
+|  10/25/20              | SPAR            |                     | 1546                  |
+|________________________|_________________|_____________________|_______________________|
+| Signature below certifies the following:                                               |
+| 1) Previous DVIR was examined and power unit is safe to operate                        |
+| 2) A pre-trip inspection was performed following the process detailed on the inside    |
+|    cover of this DVIR book                                                             |
+| 3) I am in compliance with the following CSA related items:                            |
+|                                                                                        |
+|    -Valid CDL License    -Medical Card is valid    -Permits/Vehicle Registration       |
+|    -CDL Endorsements are -Required Glasses,         Documents are Proper               |
+|     valid for run         Hearing Aids worn        -Prior 7 Day Logs and/or OBC        |
+|                                                     Instruction Card are available     |
+|                                                                                        |
+|________________________________________________________________________________________|
+| Driver Pre Trip Remarks                                                                |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|                                                                                        |
+|________________________________________________________________________________________|
+|                    |                                    | Driver's                     |
+| Driver Signature   |                                    | Phone Number                 |
+|____________________|____________________________________|______________________________|
