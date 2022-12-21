@@ -5,10 +5,9 @@ Prints forms to print along with route
 
 *******************************************************************************/
 
-/*{_laser.def}*/
+{_laser.def}
 
-/*define input parameter ipOrderNum as character.*/
-/*define input parameter ipRouteNum as character.*/
+/*define input parameter ipRouteRowid as rowid.*/
 
 define variable ipOrderNum as character. 
 define variable ipRouteNum as character. 
@@ -20,11 +19,14 @@ define variable trailerNum as character no-undo.
 define variable driverInit as character no-undo.
 define variable routeDate as character no-undo.
 
+define buffer lbufRoute_hdr for route_hdr.
 
 find first route_hdr where
            route_hdr.date_ <> ? and
            route_hdr.trailer <> "" and
            route_hdr.route <> "" no-lock no-error.
+
+/*find lbufRoute_hdr where rowid(lBufRoute_hdr) = ipRouteRowid.*/
 
 assign ipRouteNum = route_hdr.route.
 
@@ -50,6 +52,12 @@ run printRouteTruckReeferLog.
 run printRouteMerchandiseReturnForm.
 
 
+  UNIX SILENT qprt -Plp90 -Bnn /bi/tmp/VehicleInspectionReport.txt.
+  UNIX SILENT qprt -Plp90 -Bnn /bi/tmp/DriverRouteForm.txt.
+  UNIX SILENT qprt -Plp90 -Bnn /bi/tmp/RouteTruckReeferLog.txt.  
+  UNIX SILENT qprt -Plp90 -Bnn /bi/tmp/RouteMerchandiseReturnForm.txt.
+  
+  
 procedure printVehicleInspectionReport:
 
   
@@ -150,8 +158,8 @@ procedure printVehicleInspectionReport:
   put "|____________________|____________________________________|______________________________|" skip.     
   
   output close.
- 
-  UNIX SILENT qprt -Plp8 -Bnn /bi/tmp/VehicleInspectionReport.txt.
+/* page stream printForms.*/
+
   
 
 end procedure.  
@@ -219,7 +227,7 @@ procedure printDriverRouteForm:
 
   output close.
   
-  UNIX SILENT qprt -Plp8 -Bnn /bi/tmp/DriverRouteForm.txt.
+  
  
 end procedure.  
 
@@ -290,7 +298,6 @@ procedure printRouteTruckReeferLog:
 
   output close.
   
-  UNIX SILENT qprt -Plp8 -Bnn /bi/tmp/RouteTruckReeferLog.txt.
   
 end procedure.  
 
@@ -375,7 +382,6 @@ procedure printRouteMerchandiseReturnForm:
    
   output close.
   
-  UNIX SILENT qprt -Plp8 -Bnn /bi/tmp/RouteMerchandiseReturnForm.txt.
   
 end procedure.  
 

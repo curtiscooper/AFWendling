@@ -1,0 +1,4 @@
+truck: SPAR    
+trailer: 1546    
+driverInit: KDM     
+routeDate: 10/25/20

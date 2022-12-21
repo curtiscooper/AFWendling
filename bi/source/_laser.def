@@ -1,0 +1,107 @@
+/*******************************************************************************
+_laser.def    HP laserjet printer (lp3,lp8)
+created    10/22/92
+******************************************************************************/
+/*** job control ***/
+def var reset    AS char format "X(2)" init "~033E" no-undo.
+def var copy2    AS char format "X(5)" init "~033&l2X" no-undo.
+def var copy3    AS char format "X(5)" init "~033&l3X" no-undo.
+
+/*** orientation ***/
+def var portrait  AS char format "X(5)" init "~033&l0O" no-undo.
+def var landscape AS char format "X(5)" init "~033&l1O" no-undo.
+
+/*** stroke weight ***/
+def var bold      AS char format "X(5)" init "~033(s3B" no-undo.
+def var xbold      AS char format "X(5)" init "~033(s4B" no-undo.
+def var normal    AS char format "X(5)" init "~033(s0B" no-undo.
+
+/*** fonts ***/
+def var pc8       AS char format "X(5)" init "~033(10U" no-undo.
+def var roman8    AS char format "X(4)" init "~033(8U"  no-undo.
+def var courier   AS char format "X(5)" init "~033(s3T" no-undo.
+/**
+def var courier   AS char format "X(5)" init "~033(s4099T" no-undo.
+**/
+def var arial     AS char format "X(5)" init "~033(s16602T" no-undo.
+
+/*** pitch ***/
+def var cpi2      AS char format "X(5)" init "~033(s1.5H" no-undo.
+def var cpi4      AS char format "X(5)" init "~033(s4H" no-undo.
+def var cpi6      AS char format "X(5)" init "~033(s6H" no-undo.
+def var cpi8      AS char format "X(5)" init "~033(s8H" no-undo.
+def var cpi9      AS char format "X(5)" init "~033(s9H" no-undo.
+def var cpi10     AS char format "X(6)" init "~033(s10H" no-undo.
+def var cpi11     AS char format "X(6)" init "~033(s11H" no-undo.
+def var cpi12     AS char format "X(6)" init "~033(s12H" no-undo.
+def var cpi13     AS char format "X(6)" init "~033(s13H" no-undo.
+def var cpi14     AS char format "X(6)" init "~033(s14H" no-undo.
+def var cpi15     AS char format "X(6)" init "~033(s15H" no-undo.
+def var cpi16     AS char format "X(6)" init "~033(s16H" no-undo.
+def var cpi17     AS char format "X(6)" init "~033(s17H" no-undo.
+def var cpi18     AS char format "X(6)" init "~033(s18H" no-undo.
+def var cpi23     AS char format "X(6)" init "~033(s23H" no-undo.
+
+/*** vertical line spacing ***/
+def var lpi3      AS char format "X(5)" init "~033&l3D" no-undo.
+def var lpi4      AS char format "X(5)" init "~033&l4D" no-undo.
+def var lpi6      AS char format "X(5)" init "~033&l6D" no-undo.
+def var lpi7      AS char format "X(5)" init "~033&l7D" no-undo.
+def var lpi8      AS char format "X(5)" init "~033&l8D" no-undo.
+def var lpi9      AS char format "X(5)" init "~033&l9D" no-undo.
+def var lpi10     AS char format "X(6)" init "~033&l10D" no-undo.
+def var lpi12     AS char format "X(6)" init "~033&l12D" no-undo.
+def var lpi14     AS char format "X(6)" init "~033&l14D" no-undo.
+
+/*** underline ***/
+def var fixed     AS char format "X(5)" init "~033&d0D" no-undo.
+def var floating  AS char format "X(5)" init "~033&d3D" no-undo.
+def var underoff  AS char format "X(4)" init "~033&d@" no-undo.
+
+/*** shading ***/
+def var gray2    AS char format "X(5)" init "~033*c2G" no-undo.
+def var gray10   AS char format "X(6)" init "~033*c10G" no-undo.
+def var fillin   AS char format "X(5)" init "~033*c2P" no-undo.
+
+/*** cursor positioning ***/
+/** 300 dots per inch **/
+def var rowup1    AS char format "X(6)" init "~033&a-1R" no-undo.
+def var rowup2    AS char format "X(6)" init "~033&a-2R" no-undo.
+def var rowup4    AS char format "X(6)" init "~033&a-4R" no-undo.
+def var rowdown1  AS char format "X(5)" init "~033&a1R" no-undo.
+def var rowdown4  AS char format "X(5)" init "~033&a4R" no-undo.
+def var colback1  AS char format "X(6)" init "~033&a-1C" no-undo.
+def var colforw1  AS char format "X(5)" init "~033&a1C" no-undo.
+def var colforw13 AS char format "X(6)" init "~033&a13C" no-undo.
+def var halfline  AS char format "X(2)" init "~033=" no-undo.
+def var updot25   AS char format "X(7)" init "~033*p-25Y" no-undo.
+def var updot50   AS char format "X(7)" init "~033*p-50Y" no-undo.
+def var updot150  AS char format "X(7)" init "~033*p-150Y" no-undo.
+def var downdot25 AS char format "X(7)" init "~033*p+25Y" no-undo.
+def var downdot150 AS char format "X(7)" init "~033*p+150Y" no-undo.
+def var dhigh130  AS char format "X(7)" init "~033*c""130""B" no-undo.
+def var dwide970  AS char format "X(7)" init "~033*c""970""A" no-undo.
+
+/*** margins ***/
+def var rtmargin120 AS char format "X(7)" init "~033&a120M" no-undo.
+def var letter AS char format "X(5)" init "~033&l2A" no-undo.
+def var legal as char format "X(5)" init "~033&l3A" no-undo.
+def var marginreset AS char format "X(2)" init "~0339" no-undo.
+def var disperf as char format "X(5)" init "\033&l0L" no-undo.
+def var dismarg as char format "X(5)" init "\033&l0E" no-undo.
+
+/*** push/pop cursor position ****/
+def var push as char format "X(5)" init  "~033&f0S" no-undo.
+def var pop  as char format "X(5)" init "~033&f1S" no-undo.
+
+
+/*** colors  *******/
+
+def var black as char format "X(5)"   init "~033&v0S" no-undo.
+def var red as char format "X(5)"     init "~033&v1S" no-undo.
+def var green as char format "X(5)"   init "~033&v2S" no-undo.
+def var yellow as char format "X(5)"  init "~033&v3S" no-undo.
+def var blue as char format "X(5)"    init "~033&v4S" no-undo.
+def var magenta as char format "X(5)" init "~033&v5S" no-undo.
+def var cyan as char format "X(5)"    init "~033&v6S" no-undo.
+def var white as char format "X(5)"   init "~033&v7S" no-undo.
