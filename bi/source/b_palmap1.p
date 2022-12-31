@@ -340,4 +340,7 @@ if keyfunction(lastkey) <> "END-ERROR" then do:
     
 end.
 
-run printRouteForms(rowid(route_hdr).
+run printRouteForms(input ROUTE_HDR.CO,
+                    input ROUTE_HDR.DRIVER,
+                    input ROUTE_HDR.DATE_,
+                    input ROUTE_HDR.ROUTE).

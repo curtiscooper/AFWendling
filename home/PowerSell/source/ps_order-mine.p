@@ -338,7 +338,6 @@ define var j        as int  no-undo.
             assign ftp-line = replace(ftp-line,"ftp ftp ","ftp ftp").
         end.
         assign ftp-line = replace(ftp-line,"ftp ftp","ftp ftp ").
-        /* original version 
         assign
             ftp-mmm  = entry(6,ftp-line," ")
             ftp-mm   = string(lookup(ftp-mmm,mmm),"99")
@@ -349,34 +348,6 @@ define var j        as int  no-undo.
             ftp-name = trim(entry(9,ftp-line," "),'"')
             ftp-date = ftp-yyyy + ftp-mm + ftp-dd
             ftp-dttm = ftp-date + "@" + ftp-time.
-        */
-        /****
-        The code below replaces the assign statement above to correct
-        an issue with how the dir command was displaying on the remote 
-        server.  Sometimes, instead of the HH:MM being in column 8, the 
-        year was inexplicably displayed instead thus creating two space 
-        delimiters between the date and the time.  This messed up the 
-        parsing for the ftp-name and created an issue that killed the 
-        polling program.  
-        ****/
-        assign
-            ftp-mmm  = entry(6,ftp-line," ")
-            ftp-mm   = string(lookup(ftp-mmm,mmm),"99")
-            ftp-dd   = entry(7,ftp-line," ")
-            ftp-time = entry(8,ftp-line," ").
-        if ftp-time = "" 
-        then ftp-time = "00:00".
-        ftp-time = ftp-time + ":00". 
-        assign
-            ftp-time = replace(ftp-time,":","")
-            ftp-yyyy = string(year(today),"9999")
-            ftp-date = ftp-yyyy + ftp-mm + ftp-dd
-            ftp-dttm = ftp-date + "@" + ftp-time
-            ftp-name = trim(entry(9,ftp-line," "),'"'). 
-        if ftp-name = string(year(today)) 
-        then ftp-name = trim(entry(10,ftp-line," "),'"').
-        /**** end of new logic ****/
-        
         create tt-FTP-Files.
         assign 
             tt-FTP-Files.Type         = substr(ftp-name,1,3)
@@ -929,26 +900,25 @@ define var companyNum      as char no-undo format "x(003)".
 define var customerNum     as char no-undo format "x(10)".
 define var orderNum       as char no-undo format "x(10)".
 define var type         as char no-undo format "x".
-define var confirm-line as char no-undo format "x(50)".
-define variable itemNum   as character no-undo.
+define var confirm-line as char no-undo format "x(60)".
+define var cItem        as char no-undo.
 define variable lineNum   as character no-undo.
 define variable cUnit   as character no-undo.
 define variable qtyOrd as character no-undo.
 define variable qtyShip     as character no-undo.
 define variable cSub         as character no-undo.
 define variable stockStatus as character no-undo.
-define variable itemDesc as character no-undo format "x(60)".
+define variable itemDesc as character no-undo format "x(30)".
 define variable customerName as character no-undo.
 define variable shipDate as date no-undo.
 define variable shipVia as character no-undo.
-define variable extPrice as character no-undo.
+define variable extPrice as decimal no-undo.
 define variable lException as logical no-undo.
-define variable orderTotal as decimal no-undo.
 
 define buffer bufOrder for order.
 define buffer bufOrder_hold for order_hold.
 define buffer bufItem for item.
-define buffer bufShip_via for ship_via.
+
 
     {we_dbgproc.i Process-Order-Confirmations "Begins"}
     Process-Confirm-Files: for each tt-FTP-Files use-index Seed /* FTPFiles */
@@ -994,30 +964,24 @@ define buffer bufShip_via for ship_via.
 
             find bufOrder where
                  bufOrder.co        = tt-Confirm-Order.Company and
-                 bufOrder.order     = tt-Confirm-Order.Order no-lock no-error.
+                 budOrder.order     = tt-Confirm-Order.Order no-lock no-error.
                  
-            find bufShip_via where
-                 bufShip_via.ship_via = bufOrder.ship_via and
-                 bufShip_via.co = bufOrder.co no-lock no-error.
-               
+            
             assign 
                 customerName = if available customer then customer.name else " "
                 shipDate     = if available bufOrder then bufOrder.SHIP_DT else ?
-                shipVia      = if available bufShip_via then bufShip_via.description
-                                else "N/A".
-                orderTotal   = if available bufOrder then bufOrder.TTL_EXT else ?.
+                shipVia      = if available bufOrder then bufOrder.SHIP_VIA else " ".
                  
-            put stream s-confirms unformatted substitute("Order confirmation for order &1 | Cutomer &2 &3",orderNum,customerNum,customerName) skip.
-            put stream s-confirms unformatted " " skip.
+            put stream s-confirms unformatted substitute("Order confirmation for order &1",orderNum) skip.
+            put stream s-confirms unformatted substitute("Cutomer &1 &2",customerNum,customerName) skip.
             put stream s-confirms unformatted substitute("Ship date: &1 Ship Via: &2",string(shipDate,"99/99/9999"),shipVia) skip skip.
-            put stream s-confirms unformatted " " skip.
             
             /* Line Item Header ******************************************************************* */
             assign 
                 confirm-line = 
                     "Line " +
-                    "Item " +
-                    "Description                                       " + 
+                    "Item       " +
+                    "Description                   " + 
                     "Unit " +
                     "QtyO " +
                     "QtyS " +
@@ -1075,21 +1039,19 @@ define buffer bufShip_via for ship_via.
                 
                 assign
                     cntline = cntline + 1
-                    itemNum    = ORDER_ITEM.ITEM.
-                    {_justify.i itemNum 5}
-                assign                    
+                    cItem    = ORDER_ITEM.ITEM
+                    cItem    = cItem + fill(" ",10 - length(cItem))
                     itemDesc = tt-Confirm-Item.ItemDesc
-                    itemDesc = trim(itemDesc) + fill(" ",50 - length(trim(itemDesc)))                 
-                    lineNum = string(ORDER_ITEM.LINE,"9999")
+                    cLine = string(ORDER_ITEM.LINE,"9999")
                     cUnit = ORDER_ITEM.UNIT
-                    qtyOrd = string(ORDER_ITEM.QTY_ORD,"-9999")
-                    qtyShip = string(ORDER_ITEM.QTY_SHIP,"-9999")
-                    extPrice = string(ORDER_ITEM.EXTEND,"->>>9.99")          
+                    cQtyOrd = string(ORDER_ITEM.QTY_ORD,"-9999")
+                    cQtyShip = string(ORDER_ITEM.QTY_SHIP,"-9999")
+                    extPrice = string(ORDER_ITEM.EXTEND,"$-9999.99"          
                     cSub     = string(ORDER_ITEM.SUB&)
-                    stockStatus = if available bufItem then ITEM.STOCK_STATUS else "N/A".                                 
+                    cStockStatus = if available item then ITEM.STOCK_STATUS else "N/A" no-error.                                 
                     
                     
-                put stream s-confirms unformatted substitute("&1 &2 &3 &4 &5 &6 &7 &8   &9",lineNum,itemNum,itemDesc,cUnit,qtyOrd,qtyShip,extPrice,cSub,stockStatus) skip.
+                put stream s-confirms unformatted substitute("&1 &2 &3 &4 &5 &6 &7 &8   &9",cLine,cItem,itemDesc,cUnit,cQtyOrd,cQtyShip,extPrice,cSub,cStockStatus) skip.
                 
                 if ORDER_ITEM.SUB& = yes then
                     assign lException = yes.     
@@ -1134,20 +1096,16 @@ define buffer bufShip_via for ship_via.
 /*            put stream s-confirms unformatted confirm-line skip.*/
 
             /* Print Order Footer ****************************************************************** */
-            
-            put stream s-confirms unformatted confirm-line skip.
-            put stream s-confirms unformatted substitute("Order Total: &1",orderTotal) skip.
-            
+          
             find first bufOrder_hold no-lock where 
                        bufOrder_hold.co = tt-Confirm-Order.company and
-                       bufOrder_hold.order = tt-Confirm-Order.order no-error.
-                        
+                       bufOrder_hold.order = tt-Confirm-Order.company) no-error. 
             if available bufOrder_hold then
                 do:                        
-                    put stream s-confirms unformatted substitute("***WARNING ORDER MAY NOT SHIP. ORDER IS ON &1 HOLD",bufOrder_hold.type) skip.                     
+                    put stream s-confirms unformatted substitute("***WARNING ORDER MAY NOT SHIP. ORDER IS ON &1 HOLD",bufOrder_hold.type) no-error.                     
                 end.
-            put stream s-confirms unformatted confirm-line skip.            
-            if lException = yes then
+                        
+            is lException = yes then
                 put stream s-confirms unformatted "Order Status: There is an order Exception" skip.
             else
                 put stream s-confirms unformatted "Order Status: Good" skip.
